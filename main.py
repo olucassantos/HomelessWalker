@@ -35,7 +35,7 @@ for i in range(8):
     frame = pygame.transform.scale(frame, (256, 256))
     listFramesWalk.append(frame)
 
-for i in range(16):
+for i in range(9):
     frame = folhaSpritesJump.subsurface(i * 128, 0, 128, 128)
     frame = pygame.transform.scale(frame, (256, 256))
     listFramesJump.append(frame)
@@ -53,7 +53,7 @@ velocidadeAnimacaoWalk = 10
 # Variaveis da animação do personagem pulando
 indexFrameJump = 0
 tempoAnimacaoJump = 0.0
-velocidadeAnimacaoJump = 3
+velocidadeAnimacaoJump = 5
 
 # Retangulo do personagem na tela para melhor controle e posicionamento do personagem
 personagemRect = listFramesIdle[0].get_rect(midbottom=(100, 480))
@@ -121,6 +121,7 @@ while True:
     if listTeclas[pygame.K_SPACE]: # Verifica se a tecla espaço foi pressionada
         if personagemRect.centery == 330: # Verifica se o personagem está no chão
             gravidade = -50 # Define como negativo para o personagem subir
+            indexFrameJump = 0 # Reseta o frame do pulo
 
     # Gravidade Aumenta
     gravidade += 3
