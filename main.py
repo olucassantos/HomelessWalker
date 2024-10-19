@@ -3,8 +3,8 @@ import pygame
 pygame.init()
 relogio = pygame.time.Clock()
 
-tamanho = (1200, 500)
-tela = pygame.display.set_mode(tamanho)
+tamanhoTela = (1280, 720)
+tela = pygame.display.set_mode(tamanhoTela)
 
 pygame.display.set_caption("Homeless Walker")
 dt = 0
@@ -62,6 +62,29 @@ gravidade = 1 # Gravidade do jogo, valor que aumenta a cada frame
 direcaoPersonagem = 1 # Direção que o personagem está olhando (1 = Direita, -1 = Esquerda)
 estaAndando = False # Define se o personagem está andando ou não
 
+# ASSETS PARA O PLANO DE FUNDO
+
+# Importa as imagens do plano de fundo
+listBgImages = [
+    pygame.image.load("assets/Apocalipse/Apocalypce4/Bright/bg.png").convert_alpha(),
+    pygame.image.load("assets/Apocalipse/Apocalypce4/Bright/rail&wall.png").convert_alpha(),
+    pygame.image.load("assets/Apocalipse/Apocalypce4/Bright/train.png").convert_alpha(),
+    pygame.image.load("assets/Apocalipse/Apocalypce4/Bright/columns&floor.png").convert_alpha(),
+    pygame.image.load("assets/Apocalipse/Apocalypce4/Bright/infopost&wires.png").convert_alpha(),
+    pygame.image.load("assets/Apocalipse/Apocalypce4/Bright/wires.png").convert_alpha(),
+    pygame.image.load("assets/Apocalipse/Apocalypce4/Bright/floor&underfloor.png").convert_alpha(),
+]
+
+listaBgVelocidades = [1, 2, 3, 4, 5, 6, 7] # Velocidades de cada imagem do plano de fundo
+
+listaBgPosicoes = [0 for _ in range(len(listBgImages))] # Posições de cada imagem do plano de fundo
+
+# Loop que redimensiona as imagens do plano de fundo
+for i in range(len(listBgImages)):
+    listBgImages[i] = pygame.transform.scale(listBgImages[i], tamanhoTela)
+
+ALTURA_CHAO = 480
+
 # LOOP PRINCIPAL
 while True:
 
@@ -74,6 +97,10 @@ while True:
             exit() # Fecha o programa
 
     tela.fill((255, 255, 255)) # Preenche a tela com a cor branca
+
+    # Desenha o plano de fundo
+    for i in range(len(listBgImages)):
+        tela.blit(listBgImages[i], (0, 0))
 
     # Soma o tempo que se passou desde o último frame
     tempoAnimacaoIdle += dt
@@ -119,7 +146,7 @@ while True:
         estaAndando = True
 
     if listTeclas[pygame.K_SPACE]: # Verifica se a tecla espaço foi pressionada
-        if personagemRect.centery == 330: # Verifica se o personagem está no chão
+        if personagemRect.centery == ALTURA_CHAO: # Verifica se o personagem está no chão
             gravidade = -50 # Define como negativo para o personagem subir
             indexFrameJump = 0 # Reseta o frame do pulo
 
@@ -130,8 +157,8 @@ while True:
     personagemRect.y += gravidade
 
     # Verifica se o personagem está no chão
-    if personagemRect.centery >= 330:
-        personagemRect.centery = 330
+    if personagemRect.centery >= ALTURA_CHAO:
+        personagemRect.centery = ALTURA_CHAO
 
     # Desenha o personagem
     if gravidade < 0: # Verifica se o personagem está subindo
