@@ -75,7 +75,7 @@ listBgImages = [
     pygame.image.load("assets/Apocalipse/Apocalypce4/Bright/floor&underfloor.png").convert_alpha(),
 ]
 
-listaBgVelocidades = [1, 2, 3, 4, 5, 6, 7] # Velocidades de cada imagem do plano de fundo
+listaBgVelocidades = [1, 3, 7, 9, 10, 15, 20] # Velocidades de cada imagem do plano de fundo
 
 listaBgPosicoes = [0 for _ in range(len(listBgImages))] # Posições de cada imagem do plano de fundo
 
@@ -83,11 +83,10 @@ listaBgPosicoes = [0 for _ in range(len(listBgImages))] # Posições de cada ima
 for i in range(len(listBgImages)):
     listBgImages[i] = pygame.transform.scale(listBgImages[i], tamanhoTela)
 
-ALTURA_CHAO = 480
+ALTURA_CHAO = 485
 
 # LOOP PRINCIPAL
 while True:
-
     # Loop que verifica todos os eventos que acontecem no jogo
     for event in pygame.event.get():
 
@@ -98,9 +97,21 @@ while True:
 
     tela.fill((255, 255, 255)) # Preenche a tela com a cor branca
 
+    # Percorre todas as imagens do plano de fundo para movimentar
+    for i in range(len(listBgImages)):
+        listaBgPosicoes[i] -= listaBgVelocidades[i] * 10 * dt # Move a imagem para a esquerda
+
+        # Verifica se a imagem saiu da tela
+        if listaBgPosicoes[i] <= -tamanhoTela[0]:
+            listaBgPosicoes[i] = 0 # Retorna a imagem para a posição inicial
+
     # Desenha o plano de fundo
     for i in range(len(listBgImages)):
-        tela.blit(listBgImages[i], (0, 0))
+        # Desenha a imagem do plano de fundo que está na tela
+        tela.blit(listBgImages[i], (listaBgPosicoes[i], 0))
+
+        # Desenha a imagem do plano de fundo que está fora da tela
+        tela.blit(listBgImages[i], (listaBgPosicoes[i] + tamanhoTela[0], 0))
 
     # Soma o tempo que se passou desde o último frame
     tempoAnimacaoIdle += dt
