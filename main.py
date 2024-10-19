@@ -84,7 +84,7 @@ for i in range(len(listBgImages)):
     listBgImages[i] = pygame.transform.scale(listBgImages[i], tamanhoTela)
 
 ALTURA_CHAO = 485
-VELOCIDADE_PERSONAGEM = 10
+VELOCIDADE_PERSONAGEM = 30
 
 # LOOP PRINCIPAL
 while True:
