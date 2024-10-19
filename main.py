@@ -133,20 +133,19 @@ while True:
         personagemRect.centery = 330
 
     # Desenha o personagem
-    if gravidade < 0:
-        tela.blit(listFramesJump[indexFrameJump], personagemRect)
+    if gravidade < 0: # Verifica se o personagem está subindo
+        frame = listFramesJump[indexFrameJump]
     else:
-        if estaAndando:
-            if direcaoPersonagem == 1:
-                tela.blit(listFramesWalk[indexFrameWalk], personagemRect)
-            else:
-                tela.blit(pygame.transform.flip(listFramesWalk[indexFrameWalk], True, False), personagemRect)
-        else:
-            if direcaoPersonagem == 1:
-                tela.blit(listFramesIdle[indexFrameIdle], personagemRect)
-            else:
-                tela.blit(pygame.transform.flip(listFramesIdle[indexFrameIdle], True, False), personagemRect)
+        if estaAndando: # Verifica se o personagem está andando
+            frame = listFramesWalk[indexFrameWalk]
+        else: # Caso contrário, o personagem está parado
+            frame = listFramesIdle[indexFrameIdle]
 
-    pygame.display.update()
+    if direcaoPersonagem == -1: # Verifica se o personagem está olhando para a esquerda e inverte a imagem
+        frame = pygame.transform.flip(frame, True, False) # Inverte a imagem
 
-    dt = relogio.tick(60) / 1000
+    tela.blit(frame, personagemRect) # Desenha o personagem na tela
+
+    pygame.display.update() # Atualiza a tela
+
+    dt = relogio.tick(60) / 1000 # Define o tempo de cada frame em segundos
