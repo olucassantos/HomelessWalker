@@ -12,17 +12,19 @@ dt = 0
 # Carrega a fonte a ser usada no jogo
 fonteTempo = pygame.font.Font("assets/Fonts/EnergyStation/Energy Station.ttf", 80)
 
-# Carrega a spritesheet para nosso projeto
+# Carrega a spritesheet para nosso projeto.
 folhaSpritesIdle = pygame.image.load("assets/Homeless_1/Idle_2.png").convert_alpha()
 folhaSpritesWalk = pygame.image.load("assets/Homeless_1/Walk.png").convert_alpha()
 folhaSpritesJump = pygame.image.load("assets/Homeless_1/Jump.png").convert_alpha()
 folhaSpritesRunn = pygame.image.load("assets/Homeless_1/Run.png").convert_alpha()
+folhaSpritesFacas = pygame.image.load("assets/Weapons/Armas/tesoura.png").convert_alpha()
 
 # Define os frames
 listFramesIdle = []
 listFramesWalk = []
 listFramesJump = []
 listFramesRunn = []
+listFramesFacas = []
 
 # Cria os frames do personagem na lista de listFramesIdle
 for i in range(11):
@@ -50,6 +52,11 @@ for i in range(8):
     frame = pygame.transform.scale(frame, (256, 256))
     listFramesRunn.append(frame)
 
+for i in range(1):
+    frame = folhaSpritesFacas.subsurface(i * 31, 0, 31, 31)
+    frame = pygame.transform.scale(frame, (55, 55))
+    listFramesFacas.append(frame)
+
 # Variaveis da animação do personagem parado
 indexFrameIdle = 0 # Controla qual imagem está sendo mostrada na tela
 tempoAnimacaoIdle = 0.0 # Controla quanto tempo se passou desde a última troca de frame
@@ -69,6 +76,11 @@ velocidadeAnimacaoJump = 5
 indexFrameRunn = 0
 tempoAnimacaoRunn = 0.0
 velocidadeAnimacaoRunn = 10
+
+# Variaveis da animação do personagem correndo
+indexFrameFacas = 0
+tempoAnimacaoFacas = 0.0
+velocidadeAnimacaoFacas = 10
 
 # Retangulo do personagem na tela para melhor controle e posicionamento do personagem
 personagemRect = listFramesIdle[0].get_rect(midbottom=(250, 480))
@@ -107,6 +119,10 @@ AUMENTA_DIFICULDADE = pygame.USEREVENT + 1 # Evento para aumentar a dificuldade 
 
 pygame.time.set_timer(AUMENTA_DIFICULDADE, 10000) # Aumenta a dificuldade a cada 10 segundos
 
+# Posição inicial das tesouras
+posicaoTesouras = [1000, ALTURA_CHAO - 1]  # Exemplo de posição inicial (fora da tela à direita)
+velocidadeTesouras = 2  # Velocidade de movimento das tesouras
+
 # LOOP PRINCIPAL
 while True:
     # Loop que verifica todos os eventos que acontecem no jogo
@@ -121,6 +137,24 @@ while True:
             velocidadePersonagem += 4
 
     tela.fill((255, 255, 255)) # Preenche a tela com a cor branca
+
+    # Atualiza a posição das tesouras
+    if posicaoTesouras[0] > personagemRect.left:  # Se as tesouras estão à direita do personagem
+        posicaoTesouras[0] -= velocidadeTesouras  # Move as tesouras para a esquerda
+    else:
+    # Se as tesouras estão à esquerda do personagem, mova-as para a direita
+        posicaoTesouras[0] += velocidadeTesouras
+
+    # Verifica se as tesouras colidiram com o personagem
+    if personagemRect.colliderect(pygame.Rect(posicaoTesouras[0], posicaoTesouras[1], listFramesFacas[indexFrameFacas].get_width(), listFramesFacas[indexFrameFacas].get_height())):
+        print("Colisão! O personagem foi atingido pelas tesouras.")
+        # Aqui você pode implementar a lógica de como lidar com a colisão (como perder vida, reiniciar o jogo, etc.)
+
+    # Desenha as tesouras na tela
+    tela.blit(listFramesFacas[indexFrameFacas], (posicaoTesouras[0], posicaoTesouras[1]))
+
+
+
 
     # Percorre todas as imagens do plano de fundo para movimentar
     for i in range(len(listBgImages)):
@@ -145,6 +179,9 @@ while True:
 
         # Desenha a imagem do plano de fundo que está fora da tela na esquerda
         tela.blit(listBgImages[i], (listaBgPosicoes[i] + -tamanhoTela[0], 0))
+    
+    
+
 
     # Atualiza o tempo de jogo
     tempoJogo += dt
@@ -243,6 +280,10 @@ while True:
         frame = pygame.transform.flip(frame, True, False) # Inverte a imagem
 
     tela.blit(frame, personagemRect) # Desenha o personagem na tela
+
+    # Desenha as tesouras na tela
+    tela.blit(listFramesFacas[indexFrameFacas], (posicaoTesouras[0], posicaoTesouras[1]))
+
 
     pygame.display.update() # Atualiza a tela
 
