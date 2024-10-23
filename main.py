@@ -12,7 +12,7 @@ dt = 0
 # Carrega a fonte a ser usada no jogo
 fonteTempo = pygame.font.Font("assets/Fonts/EnergyStation/Energy Station.ttf", 80)
 
-# Carrega a spritesheet para nosso projeto
+# Carrega a spritesheet para nosso projeto.
 folhaSpritesIdle = pygame.image.load("assets/Homeless_1/Idle_2.png").convert_alpha()
 folhaSpritesWalk = pygame.image.load("assets/Homeless_1/Walk.png").convert_alpha()
 folhaSpritesJump = pygame.image.load("assets/Homeless_1/Jump.png").convert_alpha()
