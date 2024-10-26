@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 
 pygame.init()
 relogio = pygame.time.Clock()
@@ -72,10 +73,25 @@ velocidadeAnimacaoRunn = 10
 
 # Retangulo do personagem na tela para melhor controle e posicionamento do personagem
 personagemRect = listFramesIdle[0].get_rect(midbottom=(250, 480))
+personagemColisaoRect = pygame.Rect(personagemRect.x, personagemRect.y, 80, 120)
 
 gravidade = 1 # Gravidade do jogo, valor que aumenta a cada frame
 direcaoPersonagem = 1 # Direção que o personagem está olhando (1 = Direita, -1 = Esquerda)
 estaAndando = False # Define se o personagem está andando ou não
+
+# ASSETS PARA OS OBSTÁCULOS
+listaImagensObstaculos = [
+    pygame.image.load(f"assets/Weapons/Armas/Icon28_{i:02d}.png").convert_alpha() for i in range(1, 40)
+] # Lista de obstáculos que aparecerão na tela
+
+# Loop que redimensiona as imagens dos obstáculos
+for i in range(len(listaImagensObstaculos)):
+    # Redimensiona a imagem para 50x50 pixels
+    listaImagensObstaculos[i] = pygame.transform.scale(listaImagensObstaculos[i], (50, 50))
+    # Inverte a imagem no eixo X
+    listaImagensObstaculos[i] = pygame.transform.flip(listaImagensObstaculos[i], True, False)
+    # Rotaciona a imagem em 35 graus
+    listaImagensObstaculos[i] = pygame.transform.rotate(listaImagensObstaculos[i], 35)
 
 # ASSETS PARA O PLANO DE FUNDO
 
@@ -100,12 +116,18 @@ for i in range(len(listBgImages)):
 
 ALTURA_CHAO = 485
 velocidadePersonagem = 30
-
+vidas = 3
+GameOver = False
 tempoJogo = 0
 
-AUMENTA_DIFICULDADE = pygame.USEREVENT + 1 # Evento para aumentar a dificuldade do jogo
+listaObstaculos = [] # Lista de obstáculos que aparecerão na tela
 
+AUMENTA_DIFICULDADE = pygame.USEREVENT + 1 # Evento para aumentar a dificuldade do jogo
 pygame.time.set_timer(AUMENTA_DIFICULDADE, 10000) # Aumenta a dificuldade a cada 10 segundos
+
+tempoMaximoEntreObstaculos = 3000
+ADICIONA_OBSTACULO = pygame.USEREVENT + 2 # Evento para adicionar um obstáculo na tela
+pygame.time.set_timer(ADICIONA_OBSTACULO, randint(500, tempoMaximoEntreObstaculos)) # Adiciona um obstáculo a cada 1 segundo
 
 # LOOP PRINCIPAL
 while True:
@@ -117,10 +139,32 @@ while True:
             pygame.quit() # Fecha o jogo
             exit() # Fecha o programa
 
-        if event.type == AUMENTA_DIFICULDADE:
-            velocidadePersonagem += 4
+        if not GameOver:
+            if event.type == AUMENTA_DIFICULDADE:
+                velocidadePersonagem += 4
+
+                if tempoMaximoEntreObstaculos > 1100:
+                    tempoMaximoEntreObstaculos -= 300
+                    
+                pygame.time.set_timer(ADICIONA_OBSTACULO, randint(800, tempoMaximoEntreObstaculos))
+
+            if event.type == ADICIONA_OBSTACULO:
+                obstaculoImage = listaImagensObstaculos[randint(0, len(listaImagensObstaculos) - 1)]
+                posicaoX = randint(1280, 1500)
+                obstaculoRect = obstaculoImage.get_rect(midbottom=(posicaoX, 620))
+
+                obstaculo = {
+                    "rect": obstaculoRect,
+                    "image": obstaculoImage
+                }
+
+                listaObstaculos.append(obstaculo)
 
     tela.fill((255, 255, 255)) # Preenche a tela com a cor branca
+
+    # Verifica se o jogador perdeu todas as vidas
+    if vidas <= 0:
+        GameOver = True
 
     # Percorre todas as imagens do plano de fundo para movimentar
     for i in range(len(listBgImages)):
@@ -147,13 +191,40 @@ while True:
         tela.blit(listBgImages[i], (listaBgPosicoes[i] + -tamanhoTela[0], 0))
 
     # Atualiza o tempo de jogo
-    tempoJogo += dt
+    if not GameOver:
+        tempoJogo += dt
 
     # Cria o texto para o tempo de jogo
     textoTempo = fonteTempo.render(str(int(tempoJogo)), False, (255, 255, 255))
 
     # Desenha o tempo de jogo na tela
     tela.blit(textoTempo, (tamanhoTela[0] / 2, 30))
+
+    # DESENHA O MENU DE REINICIAR O JOGO
+    if GameOver:
+        # Cria o texto para o menu de reiniciar o jogo
+        textoGameOver = fonteTempo.render("JAH ERA!", False, (255, 255, 255))
+        textoReiniciar = fonteTempo.render("APERTE ENTER PARA REINICIAR", False, (255, 255, 255))
+
+        # Desenha o menu de reiniciar o jogo na tela
+        tela.blit(textoGameOver, (484, 260))
+        tela.blit(textoReiniciar, (84, 360))
+
+
+    # DESENHA OS OBSTÁCULOS NA TELA
+    for obstaculo in listaObstaculos:
+        obstaculo["rect"].x -= 30 * velocidadePersonagem * dt
+
+        # Verifica se o obstáculo saiu da tela
+        if obstaculo["rect"].right < 0:
+            listaObstaculos.remove(obstaculo)
+
+        tela.blit(obstaculo["image"], obstaculo["rect"])
+
+        # Verifica se houve colisão entre o personagem e o obstáculo
+        if personagemColisaoRect.colliderect(obstaculo["rect"]):
+            listaObstaculos.remove(obstaculo)
+            vidas -= 1
 
     # Soma o tempo que se passou desde o último frame
     tempoAnimacaoIdle += dt
@@ -197,18 +268,27 @@ while True:
     # Pega as teclas que foram pressionadas
     listTeclas = pygame.key.get_pressed()
 
-    if listTeclas[pygame.K_LEFT]: # Verifica se a tecla esquerda foi pressionada
-        direcaoPersonagem = -1 # Define a direção do personagem para a esquerda
-        estaAndando = True # Define que o personagem está andando
+    if not GameOver:
+        if listTeclas[pygame.K_LEFT]: # Verifica se a tecla esquerda foi pressionada
+            direcaoPersonagem = -1 # Define a direção do personagem para a esquerda
+            estaAndando = True # Define que o personagem está andando
 
-    if listTeclas[pygame.K_RIGHT]:
-        direcaoPersonagem = 1
-        estaAndando = True
+        if listTeclas[pygame.K_RIGHT]:
+            direcaoPersonagem = 1
+            estaAndando = True
 
-    if listTeclas[pygame.K_SPACE]: # Verifica se a tecla espaço foi pressionada
-        if personagemRect.centery == ALTURA_CHAO: # Verifica se o personagem está no chão
-            gravidade = -30 # Define como negativo para o personagem subir
-            indexFrameJump = 0 # Reseta o frame do pulo
+        if listTeclas[pygame.K_SPACE]: # Verifica se a tecla espaço foi pressionada
+            if personagemRect.centery == ALTURA_CHAO: # Verifica se o personagem está no chão
+                gravidade = -30 # Define como negativo para o personagem subir
+                indexFrameJump = 0 # Reseta o frame do pulo
+    else:
+        if listTeclas[pygame.K_RETURN]:
+            vidas = 3
+            GameOver = False
+            tempoJogo = 0
+            velocidadePersonagem = 30
+            tempoMaximoEntreObstaculos = 3000
+            listaObstaculos = []
 
     # Gravidade Aumenta
     gravidade += 2
@@ -219,6 +299,8 @@ while True:
     # Verifica se o personagem está no chão
     if personagemRect.centery >= ALTURA_CHAO:
         personagemRect.centery = ALTURA_CHAO
+
+    personagemColisaoRect.midbottom = personagemRect.midbottom
 
     # Desenha o personagem
     if gravidade < 0: # Verifica se o personagem está subindo
