@@ -93,8 +93,11 @@ for i in range(len(listaImagensObstaculos)):
     # Rotaciona a imagem em 35 graus
     listaImagensObstaculos[i] = pygame.transform.rotate(listaImagensObstaculos[i], 35)
 
-# ASSETS PARA O PLANO DE FUNDO
+# ICONES
+iconeVida = pygame.image.load("assets/Icons/Icon12.png").convert_alpha()
+iconeVida = pygame.transform.scale2x(iconeVida)
 
+# ASSETS PARA O PLANO DE FUNDO
 # Importa as imagens do plano de fundo
 listBgImages = [
     pygame.image.load("assets/Apocalipse/Apocalypce4/Bright/bg.png").convert_alpha(),
@@ -199,6 +202,10 @@ while True:
 
     # Desenha o tempo de jogo na tela
     tela.blit(textoTempo, (tamanhoTela[0] / 2, 30))
+
+    # Cria o texto para as vidas do jogador
+    for i in range(vidas):
+        tela.blit(iconeVida, (20 + i * iconeVida.get_width(), 20))
 
     # DESENHA O MENU DE REINICIAR O JOGO
     if GameOver:
