@@ -9,6 +9,9 @@ tela = pygame.display.set_mode(tamanhoTela)
 
 pygame.display.set_caption("Homeless Walker")
 dt = 0
+*
+# Carrega o arquivo de música de fundo
+pygame.mixer.music.load("assets/Music/BoxGamesMusic.mp3")
 
 # Carrega a fonte a ser usada no jogo
 fonteTempo = pygame.font.Font("assets/Fonts/EnergyStation/Energy Station.ttf", 80)
@@ -146,6 +149,10 @@ pygame.time.set_timer(ADICIONA_OBSTACULO, randint(500, tempoMaximoEntreObstaculo
 
 # LOOP PRINCIPAL
 while True:
+    # Verifica se a música de fundo está tocando
+    if not pygame.mixer.music.get_busy():
+        pygame.mixer.music.play()
+
     # Loop que verifica todos os eventos que acontecem no jogo
     for event in pygame.event.get():
 
@@ -320,6 +327,10 @@ while True:
             tempoMaximoEntreObstaculos = 3000
             listaObstaculos = []
             indexFrameDead = 0
+
+            # Reinicia  a Música de fundo
+            pygame.mixer.music.stop()
+            pygame.mixer.music.play()
 
     # Gravidade Aumenta
     gravidade += 2
